@@ -14,7 +14,13 @@ app = Dash()
 # App layout
 app.layout = html.Div([
     html.Div(children='My First App with Data'),
-    dash_table.DataTable(data=df.to_dict('records'), page_size=10)
+    dash_table.DataTable(
+        data=df.to_dict('records'),
+        page_size=10,
+        style_cell={
+            'textOverflow': 'ellipsis',
+            'maxWidth': 0
+        })
 ])
 
 # Run the app
