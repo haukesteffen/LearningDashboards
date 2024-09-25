@@ -1,12 +1,14 @@
 import os
 import pandas as pd
-from dash import Dash, html, dash_table
+import plotly.express as px
+from dash import Dash, html, dash_table, dcc
 from sqlalchemy import create_engine
 
 # Incorporate data
 engine = create_engine(f'postgresql://{os.environ["DBUSER"]}:{os.environ["DBPW"]}@localhost:5432/hndb')
 with engine.begin() as con:
     df = pd.read_sql('SELECT * FROM comments ORDER BY random() LIMIT 5', con=con)
+    df['n_words'] = df['text'].apply(lambda x: len(x.split()))
 
 # Initialize the app
 app = Dash()
@@ -20,7 +22,8 @@ app.layout = html.Div([
         style_cell={
             'textOverflow': 'ellipsis',
             'maxWidth': 0
-        })
+        }),
+    dcc.Graph(figure=px.scatter(df, x='time', y='n_words'))
 ])
 
 # Run the app
