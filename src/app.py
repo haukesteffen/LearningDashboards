@@ -24,14 +24,14 @@ app.layout = html.Div([
             'textOverflow': 'ellipsis',
             'maxWidth': 0
         }),
-    dcc.RadioItems(options=['n_words', 'n_cap'], value='n_words', id='controls-and-radio-item'),
-    dcc.Graph(figure={}, id='controls-and-graph')
+    dcc.Dropdown(options=['n_words', 'n_cap'], value='n_words', id='dropdown'),
+    dcc.Graph(figure={}, id='graph')
 ])
 
 # Add controls to build the interaction
 @callback(
-    Output(component_id='controls-and-graph', component_property='figure'),
-    Input(component_id='controls-and-radio-item', component_property='value')
+    Output(component_id='graph', component_property='figure'),
+    Input(component_id='dropdown', component_property='value')
 )
 def update_graph(col_chosen):
     fig = px.scatter(df, x='time', y=col_chosen)
