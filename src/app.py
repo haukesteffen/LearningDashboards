@@ -16,24 +16,49 @@ app = Dash()
 
 # App layout
 app.layout = html.Div([
-    html.Div(children='My First App with Data'),
-    dash_table.DataTable(
-        data=df.to_dict('records'),
-        page_size=10,
-        style_cell={
-            'textOverflow': 'ellipsis',
-            'maxWidth': 0
-        }),
-    dcc.Dropdown(options=['n_words', 'n_cap'], value='n_words', id='dropdown'),
-    dcc.Graph(figure={}, id='graph')
-])
+    html.Div(
+        children='My First App with Data'
+    ),
+    html.Div([
+        dash_table.DataTable(
+            data=df.to_dict('records'),
+            page_size=10,
+            style_cell={
+                'textOverflow': 'ellipsis',
+                'maxWidth': 0
+            }),
+        dcc.Dropdown(options=['n_words', 'n_cap'], value='n_words', id='dropdown1'),
+        dcc.Graph(figure={}, id='graph1'),
+        ], style={'width': '49%', 'display': 'inline-block'}
+    ), 
+    html.Div([
+        dash_table.DataTable(
+            data=df.to_dict('records'),
+            page_size=10,
+            style_cell={
+                'textOverflow': 'ellipsis',
+                'maxWidth': 0
+            }),
+        dcc.Dropdown(options=['n_words', 'n_cap'], value='n_words', id='dropdown2'),
+        dcc.Graph(figure={}, id='graph2'),
+        ], style={'width': '49%', 'display': 'inline-block'}
+    ),
+    ])
 
 # Add controls to build the interaction
 @callback(
-    Output(component_id='graph', component_property='figure'),
-    Input(component_id='dropdown', component_property='value')
+    Output(component_id='graph1', component_property='figure'),
+    Input(component_id='dropdown1', component_property='value')
 )
-def update_graph(col_chosen):
+def update_graph1(col_chosen):
+    fig = px.scatter(df, x='time', y=col_chosen)
+    return fig
+
+@callback(
+    Output(component_id='graph2', component_property='figure'),
+    Input(component_id='dropdown2', component_property='value')
+)
+def update_graph2(col_chosen):
     fig = px.scatter(df, x='time', y=col_chosen)
     return fig
 
