@@ -1,11 +1,7 @@
-import os
 import requests
-import pandas as pd
-import plotly.express as px
-from dash import Dash, html, dash_table, dcc, callback, Output, Input
+from dash import Dash, html, dash_table, dcc, Output, Input
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
-from sqlalchemy import create_engine
 
 
 # Initialize the app
