@@ -14,14 +14,20 @@ app.layout = html.Div([
     html.Div(
         children='My First App with Dynamic Data'
     ),
-    dcc.Input(id="comment-input", type="text", placeholder="Input Comment ID"),
-    dash_table.DataTable(
-        id='comment-table',
-        page_size=10,
-        style_cell={
-            'textOverflow': 'ellipsis',
-            'maxWidth': 0
-        })
+    html.Div(
+        dcc.Input(id="comment-input", type="text", placeholder="Input Comment ID")
+    ),
+    html.Div(
+        dash_table.DataTable(
+            id='comment-table',
+            page_size=10,
+            style_cell={
+                'textOverflow': 'ellipsis',
+                'maxWidth': 0
+            },
+            export_format='csv',
+        )
+    )
     ])
 
 # Add controls to build the interaction
@@ -40,4 +46,4 @@ def display_user_data(comment_id):
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
