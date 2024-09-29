@@ -15,7 +15,7 @@ app.layout = html.Div([
         children='My First App with Dynamic Data'
     ),
     html.Div([
-        dcc.Input(id="comment-input", type="text", placeholder="Input Comment ID"),
+        dcc.Dropdown(['Comment', 'Story', 'Job'], 'Comment', id='type-dropdown'),
         dcc.Slider(5, 25, 5,
                value=15,
                id='limit-slider'
@@ -23,7 +23,7 @@ app.layout = html.Div([
     ]),
     html.Div(
         dash_table.DataTable(
-            id='comment-table',
+            id='data-table',
             page_size=25,
             style_cell={
                 'textOverflow': 'ellipsis',
@@ -36,14 +36,14 @@ app.layout = html.Div([
 
 # Add controls to build the interaction
 @app.callback(
-    Output('comment-table', 'data'),
-    Input('comment-input', 'value'),
+    Output('data-table', 'data'),
+    Input('type-dropdown', 'value'),
     Input('limit-slider', 'value')
 )
-def display_user_data(comment_id, limit):
-    if comment_id:
+def display_user_data(type, limit):
+    if type:
         # Fetch the selected user's data from FastAPI
-        response = requests.get(f"http://localhost:8000/comment/{comment_id}/?limit={limit}")
+        response = requests.get(f"http://localhost:8000/latest/?type={type}&limit={limit}")
         if response.status_code == 200:
             comment_data = response.json()
             return comment_data
