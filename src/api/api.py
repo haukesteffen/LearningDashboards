@@ -38,3 +38,10 @@ def read_latest(db: Session = Depends(get_db), type: str = "Comment", limit: int
     if db_latest is None:
         raise HTTPException(status_code=404, detail=type + " not found")
     return db_latest
+
+@app.get("/popularity/", response_model=list[tuple])
+def read_latest(db: Session = Depends(get_db), string: str = 'Tableau'):
+    db_pop = crud.get_popularity_by_year(db=db, string=string)
+    if db_pop is None:
+        raise HTTPException(status_code=404, detail="String not found")
+    return db_pop

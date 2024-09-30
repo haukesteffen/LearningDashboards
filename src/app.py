@@ -1,4 +1,6 @@
 import requests
+import plotly.express as px
+import pandas as pd
 from dash import Dash, html, dash_table, dcc, Output, Input
 import dash_bootstrap_components as dbc
 from dash_bootstrap_templates import load_figure_template
@@ -12,24 +14,25 @@ load_figure_template('LUX')
 # App layout
 app.layout = html.Div([
     html.Div(
-        children='My First App with Dynamic Data'
+        children='Hacker News Popularity by Year'
     ),
     html.Div([
-        dcc.Dropdown(['Comment', 'Story', 'Job'], 'Comment', id='type-dropdown'),
-        dcc.Slider(5, 25, 5,
-               value=15,
-               id='limit-slider'
-        )
+        dcc.Input(value="Kubernetes", id="input", type="text", placeholder="Kubernetes", debounce=True),
     ]),
     html.Div(
         dash_table.DataTable(
             id='data-table',
-            page_size=25,
+            page_size=15,
             style_cell={
                 'textOverflow': 'ellipsis',
                 'maxWidth': 0
             },
             export_format='csv',
+        )
+    ),
+    html.Div(
+        dcc.Graph(
+            id='popularity-over-time-graph'
         )
     )
     ])
@@ -37,17 +40,26 @@ app.layout = html.Div([
 # Add controls to build the interaction
 @app.callback(
     Output('data-table', 'data'),
-    Input('type-dropdown', 'value'),
-    Input('limit-slider', 'value')
+    Input('input', 'value'),
 )
-def display_user_data(type, limit):
-    if type:
-        # Fetch the selected user's data from FastAPI
-        response = requests.get(f"http://localhost:8000/latest/?type={type}&limit={limit}")
+def display_user_data(string: str):
+    if string:
+        response = requests.get(f"http://localhost:8000/popularity/?string={string}")
         if response.status_code == 200:
-            comment_data = response.json()
-            return comment_data
+            popularity_data = response.json()
+            return popularity_data
     return []
+
+@app.callback(
+    Output('popularity-over-time-graph', 'figure'),
+    Input('data-table', 'data'),
+)
+def update_graph(data):
+    if data:
+        df = pd.DataFrame(data).rename(columns={0: 'Year', 1: 'Number of Mentions'})
+        fig = px.scatter(df, x='Year', y='Number of Mentions')
+        return fig
+    return {}
 
 # Run the app
 if __name__ == '__main__':
