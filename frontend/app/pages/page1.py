@@ -1,8 +1,7 @@
 import requests
-import dash
-from dash import Output, Input, html, dcc
+from dash import Dash, register_page, Output, Input, html, dcc
 
-dash.register_page(__name__, path='/', name='Page 1')
+register_page(__name__, path='/', name='Page 1')
 
 layout = html.Div([
     dcc.Input(
@@ -12,7 +11,7 @@ layout = html.Div([
     html.Div(id='textarea')
 ])
 
-def register_callbacks(app):
+def register_callbacks(app: Dash):
     @app.callback(
         Output('textarea', 'children'),
         Input('input', 'value')
