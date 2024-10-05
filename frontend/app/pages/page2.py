@@ -1,6 +1,7 @@
+# page2.py
 
 import requests
-from dash import Dash, register_page, Output, Input, html, dcc, callback
+from dash import Dash, register_page, Output, Input, State, html, dcc, callback
 import plotly.express as px
 import pandas as pd
 
@@ -8,15 +9,14 @@ register_page(__name__, path='/page2', name='Page 2')
 
 layout = html.Div([
     html.H1('Term Popularity Over Time'),
+    dcc.Store(id='terms_store'),
     html.Div([
-        html.Label('Enter Term ID:'),
-        dcc.Input(
-            id='term_id_input',
-            type='number',
-            value=1,
-            min=1,
-            placeholder='Enter Term ID',
-            style={'marginRight': '10px'}
+        html.Label('Select Term:'),
+        dcc.Dropdown(
+            id='term_dropdown',
+            options=[], 
+            placeholder='Select a term',
+            style={'width': '300px', 'marginRight': '10px'}
         ),
         html.Label('Select Aggregation Type:'),
         dcc.Dropdown(
@@ -30,26 +30,41 @@ layout = html.Div([
             clearable=False,
             style={'width': '150px'}
         ),
-    ], style={'display': 'flex', 'alignItems': 'center', 'gap': '10px'}),
+    ], style={'display': 'flex', 'alignItems': 'center', 'gap': '10px', 'marginBottom': '20px'}),
     dcc.Graph(id='term_popularity_graph'),
 ])
 
 def register_callbacks(app: Dash):
     @app.callback(
-        Output('term_popularity_graph', 'figure'),
-        Input('term_id_input', 'value'),
-        Input('agg_dropdown', 'value')
+        [Output('term_dropdown', 'options'),
+         Output('terms_store', 'data')],
+        Input('term_dropdown', 'id')
     )
-    def update_graph(term_id, agg):
+    def load_terms():
+        response = requests.get('http://localhost:8000/termpop/terms')
+        if response.status_code == 200:
+            terms = response.json()
+            if 'id' in terms[0]:
+                options = [{'label': term['term'], 'value': term['id']} for term in terms]
+            else:
+                return [], []
+            return options, terms
+        else:
+            return [], []
+
+    @app.callback(
+        Output('term_popularity_graph', 'figure'),
+        Input('term_dropdown', 'value'),
+        Input('agg_dropdown', 'value'),
+        State('terms_store', 'data')
+    )
+    def update_graph(term_id, agg, terms):
         if term_id is not None and agg is not None:
-            # Make API request
-            response = requests.get(f'http://localhost:8000/termpop?term_id={term_id}&agg={agg}')
+            response = requests.get(f'http://localhost:8000/termpop/agg?term_id={term_id}&agg={agg}')
             if response.status_code == 200:
                 data = response.json()
                 if data:
-                    # Convert data to DataFrame
                     df = pd.DataFrame(data)
-                    # Create a time variable based on aggregation level
                     if agg == 'year':
                         df['time'] = df['year'].astype(str)
                     elif agg == 'month':
@@ -58,10 +73,9 @@ def register_callbacks(app: Dash):
                         df['time'] = df['year'].astype(str) + '-W' + df['week'].astype(str).str.zfill(2)
                     else:
                         df['time'] = df['year'].astype(str)
-                    # Sort the DataFrame by time
                     df = df.sort_values('time')
-                    # Create line plot
-                    fig = px.line(df, x='time', y='occurrence_count', title='Term Popularity Over Time')
+                    term_name = next((term['term'] for term in terms if term['id'] == term_id), 'Selected Term')
+                    fig = px.line(df, x='time', y='occurrence_count', title=f'Term Popularity Over Time for "{term_name}"')
                     fig.update_layout(
                         xaxis_title='Time',
                         yaxis_title='Occurrence Count',
@@ -71,7 +85,7 @@ def register_callbacks(app: Dash):
                 else:
                     return {
                         'data': [],
-                        'layout': {'title': 'No data available for the selected term and aggregation level.'}
+                        'layout': {'title': f'No data available for "{term_name}" and aggregation level "{agg}".'}
                     }
             else:
                 return {
@@ -81,5 +95,5 @@ def register_callbacks(app: Dash):
         else:
             return {
                 'data': [],
-                'layout': {'title': 'Please enter a Term ID and select an aggregation type.'}
+                'layout': {'title': 'Please select a term and an aggregation type.'}
             }
