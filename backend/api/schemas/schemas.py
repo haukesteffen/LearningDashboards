@@ -206,9 +206,12 @@ class TermPopTermWithAggregations(TermPopTermInDBBase):
 # TermPop Agg Pydantic Schemas
 class TermPopAggBase(BaseModel):
     year: int
-    month: int
-    week: int
+    month: Optional[int] = None
+    week: Optional[int] = None
     occurrence_count: int
+
+    class Config:
+        orm_mode = True
 
 class TermPopAggCreate(TermPopAggBase):
     term_id: int
