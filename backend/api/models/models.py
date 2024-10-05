@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, ForeignKey
+from sqlalchemy import Column, SmallInteger, Integer, String, Text, TIMESTAMP, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -105,3 +105,33 @@ class Skipped(Base):
     __table_args__ = {'schema': 'raw'}
 
     item = Column(Integer, primary_key=True, index=True)
+
+
+# Termpop Terms
+class TermPopTerm(Base):
+    __tablename__ = 'termpop_terms'
+    __table_args__ = {'schema': 'dwh'}
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    term = Column(Text, nullable=False)
+
+    # Relationship to TermPopAgg
+    aggregations = relationship('TermPopAgg', back_populates='term')
+
+# Termpop Agg
+class TermPopAgg(Base):
+    __tablename__ = 'termpop_agg'
+    __table_args__ = (
+        PrimaryKeyConstraint('term_id', 'year', 'month', 'week', name='termpop_agg_pkey'),
+        {'schema': 'dwh'}
+    )
+
+    term_id = Column(Integer, ForeignKey('dwh.termpop_terms.id'), nullable=False)
+    year = Column(SmallInteger, nullable=False)
+    month = Column(SmallInteger, nullable=False)
+    week = Column(SmallInteger, nullable=False)
+    occurrence_count = Column(Integer, nullable=False)
+
+    # Relationship to TermPopTerm
+    term = relationship('TermPopTerm', back_populates='aggregations')
+

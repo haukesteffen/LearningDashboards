@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 
@@ -178,3 +178,46 @@ class SkippedResponse(SkippedBase):
 
     class Config:
         orm_mode = True
+
+
+# TermPop Terms Pydantic Schemas
+class TermPopTermBase(BaseModel):
+    term: str
+
+class TermPopTermCreate(TermPopTermBase):
+    pass
+
+class TermPopTermUpdate(BaseModel):
+    term: Optional[str] = None
+
+class TermPopTermInDBBase(TermPopTermBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class TermPopTerm(TermPopTermInDBBase):
+    pass
+
+class TermPopTermWithAggregations(TermPopTermInDBBase):
+    aggregations: List['TermPopAgg'] = []
+
+
+# TermPop Agg Pydantic Schemas
+class TermPopAggBase(BaseModel):
+    year: int
+    month: int
+    week: int
+    occurrence_count: int
+
+class TermPopAggCreate(TermPopAggBase):
+    term_id: int
+
+class TermPopAggInDBBase(TermPopAggBase):
+    term_id: int
+
+    class Config:
+        orm_mode = True
+
+class TermPopAgg(TermPopAggInDBBase):
+    pass
