@@ -9,10 +9,11 @@ app = Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.LUX])
 load_figure_template('LUX')
 
 # Import pages
-from pages import page1
+from pages import page1, page2
 
 # Add controls to build the interaction
 page1.register_callbacks(app)
+page2.register_callbacks(app)
 
 # App layout
 app.layout = html.Div([
