@@ -182,6 +182,7 @@ class SkippedResponse(SkippedBase):
 
 # TermPop Terms Pydantic Schemas
 class TermPopTermBase(BaseModel):
+    id: int
     term: str
 
 class TermPopTermCreate(TermPopTermBase):
