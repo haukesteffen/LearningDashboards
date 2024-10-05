@@ -27,3 +27,6 @@ def get_termpop_agg(db: Session, term_id: int, agg: str = 'year'):
     )
 
     return results
+
+def get_termpop_terms(db: Session):
+    return db.query(models.TermPopTerm).all()
