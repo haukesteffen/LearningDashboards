@@ -8,3 +8,4 @@ I will use this repository to learn more about the following technologies:
 Things learned along the way:
   - Object-relational Mappings
   - Concurrency
+  - DB Migrations and Data Warehousing
