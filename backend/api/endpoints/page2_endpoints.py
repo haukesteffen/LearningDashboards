@@ -7,8 +7,8 @@ from typing import List
 
 page2_router = APIRouter()
 
-@page2_router.get("/termpop", response_model=List[schemas.TermPopAggBase])
-def read_termpop(
+@page2_router.get("/termpop/agg", response_model=List[schemas.TermPopAggBase])
+def read_termpop_agg(
     term_id: int,
     agg: str = 'year',
     db: Session = Depends(get_db)
@@ -37,3 +37,11 @@ def read_termpop(
         aggregations.append(schemas.TermPopAggBase(**aggregation_data))
 
     return aggregations
+
+
+@page2_router.get("/termpop/terms", response_model=List[schemas.TermPopTermBase])
+def read_termpop_terms(db: Session = Depends(get_db)):
+    data = crud.get_termpop_terms(db=db)
+    if not data:
+        raise HTTPException(status_code=404, detail="No term data found.")
+    return data
