@@ -40,7 +40,7 @@ def register_callbacks(app: Dash):
          Output('terms_store', 'data')],
         Input('term_dropdown', 'id')
     )
-    def load_terms():
+    def load_terms(_):
         response = requests.get('http://localhost:8000/termpop/terms')
         if response.status_code == 200:
             terms = response.json()
