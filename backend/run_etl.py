@@ -8,9 +8,12 @@ SQLALCHEMY_DATABASE_URL = f'postgresql://{os.environ["DBUSER"]}:{os.environ["DBP
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-if __name__ == "__main__":
+def main():
     try: 
         db = SessionLocal()
         populate_termpop_agg(db=db)
     finally:
         db.close()
+
+if __name__ == "__main__":
+    main()
