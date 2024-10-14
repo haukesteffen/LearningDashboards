@@ -1,38 +1,72 @@
-# page2.py
-
 import requests
 from dash import Dash, register_page, Output, Input, State, html, dcc, callback
+import dash_bootstrap_components as dbc
 import plotly.express as px
 import pandas as pd
 
+COLOR_COMMON = '#1f77b4'
+COLOR_BG = '#f0f0f0'
+
 register_page(__name__, path='/page2', name='Page 2')
 
-layout = html.Div([
-    html.H1('Term Popularity Over Time'),
+layout = dbc.Container([ 
+    dbc.Row(
+        dbc.Col(
+            html.H1(children='Term Popularity Over Time'),
+            width=12
+        ),
+        justify='center'
+    ),
     dcc.Store(id='terms_store'),
-    html.Div([
-        html.Label('Select Term:'),
-        dcc.Dropdown(
-            id='term_dropdown',
-            options=[], 
-            placeholder='Select a term',
-            style={'width': '300px', 'marginRight': '10px'}
+    dbc.Row([
+        dbc.Row(
+            dbc.Col(
+                [
+                    html.Label('Select Term:'),
+                    dcc.Dropdown(
+                        id='term_dropdown',
+                        options=[],
+                        placeholder='Please select a term.',
+                    )
+                ],
+            ),
+            justify='center',
+            className='single-dropdown-container'
         ),
-        html.Label('Select Aggregation Type:'),
-        dcc.Dropdown(
-            id='agg_dropdown',
-            options=[
-                {'label': 'Year', 'value': 'year'},
-                {'label': 'Month', 'value': 'month'},
-                {'label': 'Week', 'value': 'week'}
+        dbc.Row(
+            dbc.Col(
+                [
+                    html.Label('Select Aggregation:'),
+                    dcc.Dropdown(
+                        id='agg_dropdown',
+                        options=[
+                            {'label': 'Year', 'value': 'year'},
+                            {'label': 'Month', 'value': 'month'},
+                            {'label': 'Week', 'value': 'week'}
+                        ],
+                        value='year',
+                        clearable=False,
+                    ),
+                ],
+            ),
+            justify='center',
+            className='single-dropdown-container'
+        )],
+        className='multiple-dropdown-container'
+    ),
+    dbc.Row(
+        dbc.Col(
+            [
+                dcc.Graph(
+                    id='term_popularity_graph',
+                )
             ],
-            value='year',
-            clearable=False,
-            style={'width': '150px'}
+            className='graph-container'
         ),
-    ], style={'display': 'flex', 'alignItems': 'center', 'gap': '10px', 'marginBottom': '20px'}),
-    dcc.Graph(id='term_popularity_graph'),
-])
+        justify='center'
+    )
+]
+)
 
 def register_callbacks(app: Dash):
     @app.callback(
@@ -45,7 +79,7 @@ def register_callbacks(app: Dash):
         if response.status_code == 200:
             terms = response.json()
             if 'id' in terms[0]:
-                options = [{'label': term['term'], 'value': term['id']} for term in terms]
+                options = [{'label': term['term'].title(), 'value': term['id']} for term in terms]
             else:
                 return [], []
             return options, terms
@@ -75,11 +109,25 @@ def register_callbacks(app: Dash):
                         df['time'] = df['year'].astype(str)
                     df = df.sort_values('time')
                     term_name = next((term['term'] for term in terms if term['id'] == term_id), 'Selected Term')
-                    fig = px.line(df, x='time', y='occurrence_count', title=f'Term Popularity Over Time for "{term_name}"')
+                    fig = px.line(df, x='time', y='occurrence_count', title=f'Term Popularity Over Time for "{term_name.title()}"')
                     fig.update_layout(
                         xaxis_title='Time',
                         yaxis_title='Occurrence Count',
-                        xaxis_tickangle=-45
+                        xaxis_tickangle=-45,
+                        font=dict(
+                            family='Lato, sans-serif', 
+                            color=COLOR_COMMON
+                        ),
+                        title_font=dict(
+                            family='Lato, sans-serif',
+                            color=COLOR_COMMON
+                        ),
+                        plot_bgcolor=COLOR_BG,
+                        paper_bgcolor=COLOR_BG
+                    )
+                    fig.update_traces(
+                        line_color=COLOR_COMMON,
+                        line_width=2
                     )
                     return fig
                 else:
