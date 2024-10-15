@@ -1,14 +1,38 @@
 import requests
 from dash import Dash, register_page, Output, Input, html, dcc
+import dash_bootstrap_components as dbc
 
-register_page(__name__, path='/', name='Page 1')
+register_page(__name__, path='/page1', name='Page 1')
 
-layout = html.Div([
-    dcc.Input(
-        id="input",
-        placeholder="input comment id"
+layout = dbc.Container([
+    dbc.Row(
+        dbc.Col(
+            html.H1(children='Comment Viewer'),
+            width=12
+        ),
+        justify='center'
     ),
-    html.Div(id='textarea')
+    dbc.Row([
+        dbc.Row(
+            dbc.Col([
+                html.Label('Input Comment ID:'),
+                dcc.Input(
+                    id='input',
+                    placeholder='Input comment ID',
+                    type='number',
+                ),
+            ]),
+            justify='center',
+            className='single-dropdown-container'
+        ),
+    ], className='multiple-dropdown-container'),
+    dbc.Row(
+        dbc.Col(
+            html.Div(id='textarea'),
+            className='graph-container'
+        ),
+        justify='center'
+    )
 ])
 
 def register_callbacks(app: Dash):
