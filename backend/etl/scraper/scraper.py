@@ -130,7 +130,7 @@ class Scraper:
     def _get_last(self):
         last_query = """
         SELECT id
-        FROM scrape
+        FROM raw.scrape
         ORDER BY scrape_time DESC
         LIMIT 1
         """
@@ -216,15 +216,15 @@ class Scraper:
 
     def _insert_sql(self):
         with self.engine.begin() as con:
-            pd.DataFrame(self.scrape).to_sql(name='scrape', con=con, if_exists='append', index=False)
-            pd.DataFrame(self.skipped).to_sql(name='skipped', con=con, if_exists='append', index=False)
-            pd.DataFrame(self.deleted).to_sql(name='deleted', con=con, if_exists='append', index=False)
-            pd.DataFrame(self.dead).to_sql(name='dead', con=con, if_exists='append', index=False)
-            pd.DataFrame(self.stories).to_sql(name='stories', con=con, if_exists='append', index=False)
-            pd.DataFrame(self.jobs).to_sql(name='jobs', con=con, if_exists='append', index=False)
-            pd.DataFrame(self.comments).to_sql(name='comments', con=con, if_exists='append', index=False)
-            pd.DataFrame(self.polls).to_sql(name='polls', con=con, if_exists='append', index=False)
-            pd.DataFrame(self.pollopts).to_sql(name='pollopts', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.scrape).to_sql(name='scrape', schema='raw', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.skipped).to_sql(name='skipped', schema='raw', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.deleted).to_sql(name='deleted', schema='raw', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.dead).to_sql(name='dead', schema='raw', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.stories).to_sql(name='stories', schema='raw', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.jobs).to_sql(name='jobs', schema='raw', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.comments).to_sql(name='comments', schema='raw', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.polls).to_sql(name='polls', schema='raw', con=con, if_exists='append', index=False)
+            pd.DataFrame(self.pollopts).to_sql(name='pollopts', schema='raw', con=con, if_exists='append', index=False)
 
 
 async def main():
