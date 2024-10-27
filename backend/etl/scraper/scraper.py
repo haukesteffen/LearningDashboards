@@ -129,10 +129,8 @@ class Scraper:
 
     def _get_last(self):
         last_query = """
-        SELECT id
+        SELECT MAX(id)
         FROM raw.scrape
-        ORDER BY scrape_time DESC
-        LIMIT 1
         """
     
         with self.engine.begin() as con:
